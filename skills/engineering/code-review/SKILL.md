@@ -1,32 +1,29 @@
 ---
 name: code-review
-description: "Review the changes since a fixed point (commit, branch, tag, or merge-base) along two axes: Standards (does the code follow this repo's documented coding standards?) and Spec (does the code match what the originating issue/spec asked for?). Runs both reviews in parallel sub-agents and reports them side by side. Use when the user wants to review a branch, a PR, work-in-progress changes, or asks to \"review since X\"."
+description: "Review the changes since a fixed point (commit, branch, tag, or merge-base) along two axes: Standards (does the code follow this repo's documented coding standards?) and Spec (does the code match what the originating issue/spec asked for?). Runs independent reviews and reports them side by side. Use when the user wants to review a branch, a PR, work-in-progress changes, or asks to \"review since X\"."
 ---
 
-Two-axis review of the diff between `HEAD` and a fixed point the user supplies:
+Two-axis review of a committed diff or working-tree changes:
 
 - **Standards**: does the code conform to this repo's documented coding standards?
 - **Spec**: does the code faithfully implement the originating issue / spec?
 
-Both axes run as **parallel sub-agents** so they don't pollute each other's context, then this skill aggregates their findings. Start every sub-agent with a fresh context window.
-
-The issue tracker should have been provided to you. If not, tell the user to run `/setup-matt-pocock-skills`.
+Run both axes in parallel with fresh-context subagents when delegation is available and allowed. Otherwise, do both reviews yourself in separate passes and disclose that fallback.
 
 ## Process
 
 ### 1. Pin the fixed point
 
-Whatever the user said is the fixed point (a commit SHA, branch name, tag, `main`, `HEAD~5`, etc.). If they didn't specify one, ask for it.
+- **Committed changes.** Use the fixed point the user supplies (commit, branch, or tag). Ask for it if no comparison was specified. Capture `git diff <fixed-point>...HEAD` and `git log <fixed-point>..HEAD --oneline`.
+- **Working-tree changes.** When called by `implement`, use its starting ref, task scope, and list of pre-existing edits. For an explicit review of current uncommitted changes, use `HEAD` unless the user supplies another baseline. Capture `git diff <baseline>` for tracked changes and inspect in-scope untracked files listed by `git ls-files --others --exclude-standard`. Include both staged and unstaged edits. Exclude unrelated work and flag overlapping edits whose ownership cannot be determined. Leave the index and working tree untouched.
 
-Capture the diff command once: `git diff <fixed-point>...HEAD` (three-dot, so the comparison is against the merge-base). Also note the list of commits via `git log <fixed-point>..HEAD --oneline`.
-
-Before going further, confirm the fixed point resolves (`git rev-parse <fixed-point>`) and the diff is non-empty. A bad ref or empty diff should fail here, not inside two parallel sub-agents.
+Confirm the ref resolves and that there are changes in scope before starting the reviews.
 
 ### 2. Identify the spec source
 
-Look for the originating spec, in this order:
+Use the originating spec, ticket, or agreed requirements passed in by `implement`. Otherwise, look for a spec in this order:
 
-1. Issue references in the commit messages (`#123`, `Closes #45`, GitLab `!67`, etc.), fetched via the workflow in the tracker doc.
+1. Issue references in the commit messages (`#123`, `Closes #45`, GitLab `!67`, etc.), fetched via the workflow in the tracker doc. If tracker access is needed and the project lacks configuration, suggest `$setup-matt-pocock-skills` or ask for the issue text.
 2. A path the user passed as an argument.
 3. A spec file under `docs/`, `specs/`, or `.scratch/` matching the branch name or feature.
 4. If nothing is found, ask the user where the spec is. If they say there isn't one, the **Spec** sub-agent will skip and report "no spec available".
@@ -55,9 +52,9 @@ Each smell reads *what it is* → *how to fix*; match it against the diff:
 - **Middle Man**: a class or function that mostly just delegates onward. → cut it, call the real target direct.
 - **Refused Bequest**: a subclass or implementer that ignores or overrides most of what it inherits. → drop the inheritance, use composition.
 
-### 4. Spawn both sub-agents in parallel
+### 4. Run both reviews
 
-Issue both sub-agent calls together, in the foreground, and aggregate the reports they return.
+In Codex, use the available delegation tool with a fresh context (for example, `fork_turns: "none"` where supported). Send both briefs before waiting for results. Include the pinned diff command, in-scope untracked paths, and any scope restrictions in each brief. Have reviewers perform their assigned review directly without delegating further.
 
 **Standards sub-agent prompt** should include:
 
@@ -68,10 +65,10 @@ Issue both sub-agent calls together, in the foreground, and aggregate the report
 **Spec sub-agent prompt** should include:
 
 - The diff command and commit list.
-- The path or fetched contents of the spec.
+- The path or contents of the requirements under review.
 - The brief: "Report: (a) requirements the spec asked for that are missing or partial; (b) behaviour in the diff that wasn't asked for (scope creep); (c) requirements that look implemented but where the implementation looks wrong. Quote the spec line for each finding. Under 400 words."
 
-If the spec is missing, skip the Spec sub-agent and note this in the final report.
+If the spec is missing, skip the Spec review and note this in the final report.
 
 ### 5. Aggregate
 

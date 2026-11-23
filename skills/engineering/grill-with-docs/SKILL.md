@@ -4,4 +4,6 @@ description: A relentless interview to sharpen a plan or design, which also crea
 disable-model-invocation: true
 ---
 
-Call the Skill tool twice, for "grilling" and "domain-modeling".
+Read the `SKILL.md` files for the declared dependencies `grilling` and `domain-modeling`. Use grilling to run the interview and apply domain modeling as terms and decisions are resolved.
+
+Resolve dependencies from the same collection as this skill. For a project install, look for `<name>/SKILL.md` beside this skill folder. In the source tree, look in the `skills/engineering` and `skills/productivity` buckets of this checkout. If a required dependency is missing, report its name and the expected location.
