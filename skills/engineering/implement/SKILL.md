@@ -18,4 +18,4 @@ Read the declared dependency `code-review` and follow its working-tree review wo
 
 Resolve dependencies from the same collection as this skill. For a project install, look for `<name>/SKILL.md` beside this skill folder. In the source tree, look in the `skills/engineering` and `skills/productivity` buckets of this checkout. If a required dependency is missing, report its name and the expected location.
 
-Leave the changes in the working tree. Commit to the current branch only when the user explicitly requests a commit.
+Commit your work to the current branch.

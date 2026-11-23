@@ -2,7 +2,7 @@
 
 `implement` builds work that has already been decided. You point it at a [ticket](https://www.aihero.dev/ai-coding-dictionary/ticket), a [spec](https://www.aihero.dev/ai-coding-dictionary/spec), or sufficiently detailed requirements, and it writes the code, drives [tdd](tdd.md) where appropriate, typechecks as it goes, and runs [code-review](code-review.md) at the end.
 
-The agreed work is the input. The Skill carries it through implementation and review, and commits only when you explicitly ask.
+The agreed work is the input. The Skill carries it through implementation and review, then commits to the current branch.
 
 ## When to reach for it
 
@@ -36,7 +36,7 @@ A run has five steps, in order:
 2. For testable behavior, read [tdd](tdd.md) and work at the pre-agreed seams, one red-green-refactor slice at a time. Use appropriate checks for changes such as documentation edits.
 3. Typecheck often, run single test files as it goes.
 4. Run the full test suite once, at the end.
-5. Read [code-review](code-review.md) and review the working-tree changes against the agreed requirements. Commit only when explicitly requested.
+5. Run [code-review](code-review.md), then commit to the current branch.
 
 When working from tickets, start with one ready ticket per session. The tickets [to-tickets](to-tickets.md) produces are tracer-bullet vertical slices sized to fit a single fresh [context window](https://www.aihero.dev/ai-coding-dictionary/context-window). Each ticket is self-contained, so you can discard the previous ticket's context.
 
@@ -58,7 +58,7 @@ For ticketed work, use one ready ticket per invocation. Parallel sessions in the
 
 **Can it open a pull request instead of committing?**
 
-`implement` leaves the reviewed changes in the working tree by default. Request any commit or pull request explicitly.
+`implement` commits to the current branch after review. Request a pull request separately.
 
 **`code-review` says it cannot see my changes.**
 
@@ -79,7 +79,7 @@ The agent resolved `#2` against another numbered list in context, such as a todo
 - The session opens by identifying the ticket, spec, or agreed requirements.
 - For testable behavior, the trace shows a read of `tdd/SKILL.md` and a meaningful failing test before the implementation.
 - Relevant typechecks and focused tests run during the work, and the full suite runs near the end.
-- The closing review covers the changes in the working tree. The branch tip moves only if you requested a commit.
+- The closing review covers the changes in the working tree, then the Skill commits to the current branch.
 - The diff stays within the agreed scope.
 
 ## Where it fits
